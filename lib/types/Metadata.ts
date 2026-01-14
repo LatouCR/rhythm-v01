@@ -2,12 +2,13 @@
 // Reference: metadata.json
 
 export type General = {
-    AudioFileName: string;
+    AudioFile: string;
     AudioLeadIn: number;
     PreviewTime: number;
     Countdown: number;
     SampleSet?: string;
     StackLeniency?: number;
+    BackgroundFile: string;
     LetterboxInBreaks?: boolean;
     SpecialStyle?: boolean;
     WidescreenStoryboard: boolean;
@@ -100,7 +101,7 @@ export type MapData = {
 // Lightweight types for different loading contexts
 export type MapPreview = {
     id: string;
-    general: Pick<General, 'AudioFileName' | 'PreviewTime' | 'WidescreenStoryboard'>;
+    general: Pick<General, 'AudioFile' | 'PreviewTime' | 'WidescreenStoryboard'>;
     metadata: Metadata;
     difficulty: Pick<Difficulty, 'HPDrainRate' | 'Keys' | 'OverallDifficulty'>;
     events: Pick<Events, 'BackgroundFile'>;
@@ -108,7 +109,7 @@ export type MapPreview = {
 
 export type TrackInfo = {
     id: string;
-    general: Pick<General, 'AudioFileName' | 'PreviewTime'>;
+    general: Pick<General, 'AudioFile' | 'PreviewTime'>;
     metadata: Pick<Metadata, 'Title' | 'Artist'>;
     events: Pick<Events, 'BackgroundFile'>;
 }
