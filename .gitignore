@@ -19,6 +19,7 @@
 
 # production
 /build
+/docs
 
 # misc
 .DS_Store
@@ -36,6 +37,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Claude Code
+/.claude
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.vscode/settings.json
