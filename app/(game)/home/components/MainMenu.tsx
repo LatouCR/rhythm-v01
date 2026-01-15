@@ -4,37 +4,47 @@ import { Particles, StarBorder } from "@/components/ReactBits";
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const PARTICLE_COLORS = ['#1f1e33', '#ffffff', '#5E548E'];
 const PARTICLE_COUNT = 500;
 const PARTICLE_SPREAD = 12;
 const PARTICLE_SPEED = 0.5;
 const PARTICLE_BASE_SIZE = 200;
-const MOVE_PARTICLES_ON_HOVER = false;
+const DISABLE_ROTATION = true;
 const ALPHA_PARTICLES = false;
 
 export function MainMenu() {
     const [isHovered, setIsHovered] = useState(false);
+    const router = useRouter();
 
     const handleToggle = () => {
         setIsHovered(prev => !prev);
     };
 
+    const handleStartGame = () => {
+        router.push('/menu');
+    }
+
+    const handleShowSettings = () => {
+        router.push('/settings');
+    }
+
     return (
         <div className="relative w-full h-[calc(100vh-4rem)] overflow-hidden">
-            <div className="absolute inset-0 -z-10">
+            <div className="absolute inset-0 -z-10" id='main-menu-background'>
                 <Particles
                     particleColors={PARTICLE_COLORS}
                     particleCount={PARTICLE_COUNT}
                     particleSpread={PARTICLE_SPREAD}
                     speed={PARTICLE_SPEED}
                     particleBaseSize={PARTICLE_BASE_SIZE}
-                    moveParticlesOnHover={MOVE_PARTICLES_ON_HOVER}
+                    disableRotation={DISABLE_ROTATION}
                     alphaParticles={ALPHA_PARTICLES}
                 />
             </div>
 
-            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6 md:p-8">
+            <div className="absolute inset-0 flex items-center justify-center" id='menu-options'>
                 <motion.div
                     className="relative flex flex-col items-center w-full max-w-xl cursor-pointer"
                     onHoverStart={() => setIsHovered(true)}
@@ -43,9 +53,9 @@ export function MainMenu() {
                     onClick={handleToggle}
                 >
                     <motion.div
-                        className="relative w-full max-w-xs sm:max-w-sm md:max-w-xl aspect-video"
+                        className="relative w-full max-w-xs sm:max-w-sm md:max-w-xl aspect-video lg:scale-135 md:scale-115 scale-100 translate-y-5"
                         animate={{
-                            y: isHovered ? -60 : 0,
+                            y: isHovered ? -40 : 0,
                         }}
                         transition={{
                             type: "spring",
@@ -76,6 +86,7 @@ export function MainMenu() {
                     >
                         <motion.div className="w-full flex justify-center"
                             whileHover={{ scale: 1.05 }}
+                            onClick={handleStartGame}
                         >
                             <StarBorder
                                 className="[&>div]:px-8 [&>div]:py-3 cursor-pointer font-semibold text-lg w-full max-w-xs"
@@ -84,6 +95,19 @@ export function MainMenu() {
                                 speed="4s"
                             >
                                 <p className='hover:text-white text-white/80'>Start Game</p>
+                            </StarBorder>
+                        </motion.div>
+                        <motion.div className="w-full flex justify-center"
+                            whileHover={{ scale: 1.05 }}
+                            onClick={handleShowSettings}
+                        >
+                            <StarBorder
+                                className="[&>div]:px-8 [&>div]:py-3 cursor-pointer font-semibold text-lg w-full max-w-xs"
+                                color="#5E548E"
+                                thickness={2}
+                                speed="4s"
+                            >
+                                <p className='hover:text-white text-white/80'>Settings</p>
                             </StarBorder>
                         </motion.div>
                         <Link

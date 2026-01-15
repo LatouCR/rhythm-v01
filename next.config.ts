@@ -9,7 +9,16 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
     ];
-  }
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "nyzowtppyojkqqzquuud.supabase.co",
+        pathname: "/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

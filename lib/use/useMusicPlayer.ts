@@ -1,41 +1,83 @@
 import { useAudioStore } from "@/lib/store/audioStore";
-
-export interface MusicPlayerProps { 
-    getAudioProgress: () => number;
-    togglePlayPause?: () => void;
-    skipToNextTrack?: () => void;
-    skipToPreviousTrack?: () => void;
-}
-
-// Fetch from database
-// - Background Image
-// - Process Metadata
-// - Track List
+import { formatDuration } from "@/lib/utils/utils";
 
 /*
     Custom hook to manage music player state and controls
-    - View Current and List Audio Elements
+    - Uses Tone.js Player via Zustand store
     - Calculate audio progress
     - Audio playback controls
+    - Provides formatted duration strings
+    - Track list management
 */
 
 export function useMusicPlayer() {
-    const { audioElement, setAudioElement, playTrack, togglePlayPause, currentTime, duration } = useAudioStore();
+    const {
+        player,
+        analyser,
+        initializePlayer,
+        initializeVolume,
+        tracks,
+        setTracks,
+        playTrack,
+        playTrackByIndex,
+        skipToNext,
+        skipToPrevious,
+        togglePlayPause,
+        currentTime,
+        duration,
+        isPlaying,
+        isLoading,
+        currentTrackData,
+        currentTrackIndex,
+        seekTo,
+        volume,
+        setVolume
+    } = useAudioStore();
 
     const getAudioProgress = () => {
         if (!duration || duration === 0) return 0;
         return (currentTime / duration) * 100;
-    }
+    };
 
-    // Get Current Audio Element and Controls
+    const getFormattedCurrentTime = () => formatDuration(currentTime);
+    const getFormattedDuration = () => formatDuration(duration);
 
     return {
-        audioElement,
-        setAudioElement,
+        // Player instance
+        player,
+        analyser,
+        initializePlayer,
+        initializeVolume,
+
+        // Track list
+        tracks,
+        setTracks,
+        currentTrackIndex,
+
+        // Playback controls
         playTrack,
+        playTrackByIndex,
+        skipToNext,
+        skipToPrevious,
         togglePlayPause,
-        getAudioProgress
-    }
+        seekTo,
 
+        // Progress
+        getAudioProgress,
+        currentTime,
+        duration,
+        getFormattedCurrentTime,
+        getFormattedDuration,
+
+        // State
+        isPlaying,
+        isLoading,
+
+        // Current track info
+        currentTrackData,
+
+        // Volume
+        volume,
+        setVolume
+    };
 }
-

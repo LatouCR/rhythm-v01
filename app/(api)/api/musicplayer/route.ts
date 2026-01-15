@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { beatmapSets } from "@/lib/db/schema";
+import { toMusicPlayerBeatmapFromDb } from "@/lib/types/BeatmapResponse";
 
 export async function GET() {
   try {
-
     const allBeatmapSets = await db
       .select({
         id: beatmapSets.id,
@@ -15,15 +15,7 @@ export async function GET() {
       .from(beatmapSets)
       .orderBy(beatmapSets.createdAt);
 
-    const tracks = allBeatmapSets.map((set, index) => ({
-      id: set.id,
-      order: index,
-      audioUrl: set.general.AudioFile,
-      backgroundUrl: set.general.BackgroundFile,
-      previewTime: set.general.PreviewTime,
-      title: set.metadata.Title,
-      artist: set.metadata.Artist,
-    }));
+    const tracks = allBeatmapSets.map(toMusicPlayerBeatmapFromDb);
 
     return NextResponse.json({ tracks });
   } catch (error) {

@@ -1,59 +1,45 @@
 import { useRef, useState, useEffect } from "react";
 import Bars from "../Visualizer/Bars";
+import type * as Tone from "tone";
 
-const defaultDataArray = new Array(256).fill(0);
+const defaultDataArray = new Array(128).fill(0);
 
 interface AudioVisualizerProps {
-  audioElement: HTMLAudioElement | null;
+  analyser: Tone.Analyser | null;
 }
 
-export default function AudioVisualizer({ audioElement }: AudioVisualizerProps) {
+export default function AudioVisualizer({ analyser }: AudioVisualizerProps) {
   const [dataArray, setDataArray] = useState<number[]>(defaultDataArray);
-
   const animationFrameIdRef = useRef<number | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
 
   useEffect(() => {
-    if (!audioElement) return;
+    if (!analyser) return;
 
-    const initializeVisualizer = () => {
-      if (audioCtxRef.current) return;
+    const draw = () => {
+      animationFrameIdRef.current = requestAnimationFrame(draw);
 
-      audioCtxRef.current = new AudioContext();
-      sourceRef.current = audioCtxRef.current.createMediaElementSource(audioElement);
-      analyserRef.current = audioCtxRef.current.createAnalyser();
-      analyserRef.current.fftSize = 512;
+      // Get FFT data from Tone.js analyser
+      const values = analyser.getValue();
 
-      sourceRef.current.connect(analyserRef.current);
-      analyserRef.current.connect(audioCtxRef.current.destination);
-
-      const bufferLength = analyserRef.current.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      console.log('Analyser frequencyBinCount:', bufferLength);
-
-      const draw = () => {
-        animationFrameIdRef.current = requestAnimationFrame(draw);
-        analyserRef.current?.getByteFrequencyData(dataArray);
-        setDataArray(Array.from(dataArray));
-      };
-
-      draw();
+      if (values instanceof Float32Array) {
+        // Convert from dB values (-100 to 0) to 0-255 range for visualization
+        const normalized = Array.from(values).map(db => {
+          // dB values typically range from -100 to 0
+          const normalized = (db + 100) / 100;
+          return Math.max(0, Math.min(255, normalized * 255));
+        });
+        setDataArray(normalized);
+      }
     };
 
-    initializeVisualizer();
+    draw();
 
     return () => {
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
-      sourceRef.current?.disconnect();
-      analyserRef.current?.disconnect();
-      audioCtxRef.current?.close();
     };
-  }, [audioElement]);
+  }, [analyser]);
 
   return (
     <div className="flex items-center justify-center w-full h-64 px-4">

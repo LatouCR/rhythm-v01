@@ -1,34 +1,41 @@
 "use client";
 import { useEffect, useState } from "react";
 import { AudioVisualizer } from "@/components/GameUI";
-import { MainMenu } from "./components/MainMenu";
 import { Settings, HomeIcon } from "lucide-react";
-import { useAudioStore } from "@/lib/store/audioStore";
 import MusicPlayer from "@/components/GameUI/Audio/MusicPlayer";
-import { TrackResponse } from "@/lib/types/TrackResponse";
+import { useMusicPlayer } from "@/lib/use/useMusicPlayer";
+import { useAudioContext } from "@/lib/providers/AudioProvider";
+import { TrackResponse, toMusicPlayerTrack } from "@/lib/types/TrackResponse";
+import { MainMenu } from "./components/MainMenu";
 
 export default function Home() {
-  const { audioElement, setAudioElement, playTrack, initializeVolume, togglePlayPause, currentTime, duration } = useAudioStore();
-  const [tracks, setTracks] = useState<TrackResponse["tracks"]>([]);
+  const { startAudio } = useAudioContext();
+  const {
+    player,
+    analyser,
+    initializePlayer,
+    initializeVolume,
+    setTracks,
+    playTrackByIndex,
+    currentTrackData
+  } = useMusicPlayer();
+
   const [isLoading, setIsLoading] = useState(true);
 
-  const getAudioProgress = () => {
-    if (!duration || duration === 0) return 0;
-    return (currentTime / duration) * 100;
-  };
-
-  // Fetch tracks from API
+  // Fetch tracks from API and store them
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        const response = await fetch("/api/musicplayer", 
+        const response = await fetch("/api/musicplayer",
           { cache: "force-cache" }
         );
         if (!response.ok) {
           throw new Error("Failed to fetch tracks");
         }
         const data: TrackResponse = await response.json();
-        setTracks(data.tracks);
+        // Convert to MusicPlayerTrack format and store in global state
+        const musicPlayerTracks = data.tracks.map(toMusicPlayerTrack);
+        setTracks(musicPlayerTracks);
       } catch (error) {
         console.error("Error fetching tracks:", error);
       } finally {
@@ -37,30 +44,26 @@ export default function Home() {
     };
 
     fetchTracks();
-  }, []);
+  }, [setTracks]);
 
-  console.log("Tracks loaded:", tracks);
-
-  // Initialize audio element
+  // Initialize player and volume
   useEffect(() => {
-    const audio = new Audio();
-    audio.crossOrigin = "anonymous";
-    setAudioElement(audio);
+    initializePlayer();
     initializeVolume();
+  }, [initializePlayer, initializeVolume]);
 
-    return () => {
-      audio.pause();
-      audio.src = '';
-    };
-  }, [setAudioElement, initializeVolume]);
-
-  // Play the first track when tracks are loaded and audio element is ready
+  // Play the first track when tracks are loaded and player is ready
+  // Only if no track is currently playing (e.g., from menu selection)
   useEffect(() => {
-    if (tracks.length > 0 && !isLoading && audioElement) {
-      playTrack(tracks[0].audioUrl);
+    if (!isLoading && player && !currentTrackData) {
+      const handleFirstPlay = async () => {
+        await startAudio();
+        playTrackByIndex(0);
+      };
+      handleFirstPlay();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tracks, isLoading, audioElement]);
+  }, [isLoading, player]);
 
   return (
     <main id="home-page" className="w-full h-screen">
@@ -77,11 +80,12 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <MusicPlayer getAudioProgress={getAudioProgress} togglePlayPause={togglePlayPause} />
-      <div className="absolute bottom-4 w-full flex flex-col justify-center items-center pointer-events-none">
+      <MainMenu />
+      <div className="absolute bottom-1 w-full flex flex-col justify-center items-center pointer-events-none">
         <div className="pointer-events-auto w-full border-b-2 border-[#1f1e33]">
-          <AudioVisualizer audioElement={audioElement} />
+          <AudioVisualizer analyser={analyser} />
         </div>
+        <MusicPlayer />
       </div>
     </main>
   );
