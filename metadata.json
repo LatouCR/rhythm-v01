@@ -1,0 +1,87 @@
+{
+  "general": {
+    "AudioFileName": "audio.mp3",
+    "AudioLeadIn": 0,
+    "PreviewTime": 33510,
+    "Countdown": 0,
+    "SampleSet": "Drum",
+    "StackLeniency": 0.7,
+    "Keys": 4,
+    "LetterboxInBreaks": false,
+    "SpecialStyle": false,
+    "WidescreenStoryboard": true
+  },
+  "editor": {
+    "DistanceSpacing": 0.8,
+    "TimeSignature": 4,
+    "GridSize": 32,
+    "TimelineZoom": 2.4
+  },
+  "metadata": {
+    "Title": "IZANA",
+    "Artist": "t+pazolite vs. P*Light",
+    "Creator": "BaniiYanii",
+    "Version": "Apocalypse",
+    "Source": "Arcaea",
+    "Tags": [
+      "AHHHHHHHHHHHHHH",
+      "happy",
+      "hardcore",
+      "tano*c",
+      "tanoc",
+      "rhythm",
+      "game",
+      "lowiro"
+    ],
+    "BeatmapID": 2336676,
+    "BeatmapSetID": 1118731
+  },
+  "difficulty": {
+    "HPDrainRate": 8.2,
+    "Keys": 4,
+    "OverallDifficulty": 8,
+    "ApproachRate": 5,
+    "SliderMultiplier": 1.4,
+    "SliderTickRate": 1
+  },
+  "events": {
+    "BackgroundFile": "bg.jpg",
+    "BreakPeriods": [],
+    "Storyboard": {
+      "Background": [],
+      "Fail": [],
+      "Pass": [],
+      "Foreground": [],
+      "Overlay": []
+    },
+    "SoundSamples": []
+  },
+  "timingPoints": [
+    {
+      "StartTime": 0,
+      "BPM": 175,
+      "TimeSignature": 4,
+      "SampleSet": 1,
+      "SampleIndex": 0,
+      "Volume": 100,
+      "Uninherited": true,
+      "Effects": 0
+    }
+  ],
+  "hitObjects": [
+    {
+      "StartTime": 6171,
+      "Lane": 0,
+      "EndTime": null,
+      "HitSound": 0,
+      "KeySounds": []
+    },
+    {
+      "StartTime": 6171,
+      "Lane": 3,
+      "EndTime": 6257,
+      "HitSound": 0,
+      "KeySounds": []
+    }
+  ]
+}
