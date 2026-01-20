@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import * as Tone from 'tone';
+import { analyze } from 'web-audio-beat-detector';
 import type { MusicPlayerTrack } from '@/lib/types/TrackResponse';
+import { setBpmCssVariable } from '@/lib/utils/uihelper';
 
 const DEFAULT_VOLUME = 70;
 
@@ -34,6 +36,7 @@ const volumeToDb = (volume: number): number => {
 interface AudioStore {
   volume: number;
   isPlaying: boolean;
+  bpm: number;
   currentTrackData: MusicPlayerTrack | null;
   currentTrackIndex: number;
   tracks: MusicPlayerTrack[];
@@ -100,6 +103,7 @@ const stopProgressTracking = () => {
 
 export const useAudioStore = create<AudioStore>((set, get) => ({
   volume: DEFAULT_VOLUME,
+  bpm: 0,
   isPlaying: false,
   currentTrackData: null,
   currentTrackIndex: -1,
@@ -218,12 +222,33 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
 
       set({
         isPlaying: true,
+        bpm: 0, // Will be updated after analysis
         currentTrackData: track,
         currentTrackIndex: trackIndex,
         isLoading: false,
         duration,
         currentTime: startTime,
       });
+
+      // Analyze BPM in the background (non-blocking)
+      const audioBuffer = activePlayer.buffer.get() as AudioBuffer | null;
+      if (audioBuffer) {
+        analyze(audioBuffer)
+          .then((tempo) => {
+            // Only update if this track is still current
+            if (loadId === currentLoadId) {
+              // Rhythm game music is typically 150-300 BPM
+              // Double the tempo if detected below 150 (likely half-time detection)
+              const adjustedTempo = tempo < 150 ? tempo * 2 : tempo;
+              const bpm = Math.round(adjustedTempo);
+              set({ bpm });
+              setBpmCssVariable(bpm);
+            }
+          })
+          .catch((err) => {
+            console.warn('BPM detection failed:', err);
+          });
+      }
 
       startProgressTracking(activePlayer, startTime, set);
     } catch (error) {

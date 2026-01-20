@@ -12,7 +12,7 @@ export default function Bars({ dataArray }: BarsProps) {
   const numBars = bars.length;
   const padding = 20;
   const viewBoxWidth = 1000;
-  const viewBoxHeight = 300;
+  const viewBoxHeight = 70;
   const spacing = 4;
   const barWidth = 8;
   const availableWidth = viewBoxWidth - (padding * 2);

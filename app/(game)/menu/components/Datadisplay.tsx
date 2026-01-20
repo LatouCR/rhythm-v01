@@ -1,7 +1,7 @@
 "use client";
 import type { BeatmapResponse, PlayableBeatmap } from "@/lib/types/BeatmapResponse";
 import { useAudioStore } from "@/lib";
-import { use, useRef, useCallback, forwardRef, useState } from "react";
+import { use, useRef, useCallback, forwardRef, useState, useEffect, useMemo } from "react";
 import { bmToMusicPlayer } from "@/lib/types/TrackResponse";
 import { useRouter } from "next/navigation";
 
@@ -13,8 +13,26 @@ export default function Datadisplay({ beatmapsPromise }: DatadisplayProps) {
     const { beatmaps } = use(beatmapsPromise);
     const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
     const [selectedIndex, setSelectedIndex] = useState<number>(-1);
-    const { playTrack } = useAudioStore();
+    const { playTrack, currentTrackData } = useAudioStore();
 
+    // Find the index of the currently playing track in the beatmaps list
+    const currentTrackIndex = useMemo(() => {
+        if (!currentTrackData) return -1;
+        return beatmaps.findIndex(bm => bm.id === currentTrackData.id);
+    }, [beatmaps, currentTrackData]);
+
+    // On mount, sync selectedIndex with currently playing track (if any)
+    // This handles the transition from /home to /menu
+    useEffect(() => {
+        if (selectedIndex === -1 && currentTrackIndex !== -1) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setSelectedIndex(currentTrackIndex);
+            // Focus the item to show the selected styling
+            itemRefs.current[currentTrackIndex]?.focus();
+        }
+    }, [currentTrackIndex, selectedIndex]);
+
+    // Play beatmap from preview time when user selects it
     const playBeatmap = useCallback((beatmapSet: PlayableBeatmap) => {
         const track = bmToMusicPlayer(beatmapSet);
         playTrack(track);
@@ -53,10 +71,16 @@ export default function Datadisplay({ beatmapsPromise }: DatadisplayProps) {
     const handleItemFocus = useCallback((index: number, beatmapSet: PlayableBeatmap) => {
         if (index === selectedIndex) return;
         setSelectedIndex(index);
-        playBeatmap(beatmapSet);
-    }, [playBeatmap, selectedIndex]);
+        // Only play if this is a different track than currently playing
+        if (currentTrackData?.id !== beatmapSet.id) {
+            playBeatmap(beatmapSet);
+        }
+    }, [playBeatmap, selectedIndex, currentTrackData]);
 
-    const currentBackground = selectedIndex >= 0 ? beatmaps[selectedIndex]?.backgroundUrl : beatmaps[0]?.backgroundUrl;
+    // Use selected beatmap's background, or fall back to currently playing track's background
+    const currentBackground = selectedIndex >= 0
+        ? beatmaps[selectedIndex]?.backgroundUrl
+        : (currentTrackData?.backgroundUrl ?? beatmaps[0]?.backgroundUrl);
 
     return (
         <div className="relative w-full h-full min-h-screen">
@@ -97,7 +121,7 @@ const BeatmapSetCard = forwardRef<HTMLLIElement, BeatmapSetCardProps>(
     function BeatmapSetCard({ beatmapSet, onItemFocus }, ref) {
         return (
             <li
-                className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 hover:cursor-pointer"
                 ref={ref}
                 tabIndex={0}
                 onFocus={onItemFocus}

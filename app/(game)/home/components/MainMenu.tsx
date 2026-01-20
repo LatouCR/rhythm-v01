@@ -27,7 +27,7 @@ export function MainMenu() {
     }
 
     const handleShowSettings = () => {
-        router.push('/settings');
+        router.push('/test');
     }
 
     return (
