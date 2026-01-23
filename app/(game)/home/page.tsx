@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AudioVisualizer } from "@/components/GameUI";
 import { Settings, HomeIcon } from "lucide-react";
 import MusicPlayer from "@/components/GameUI/Audio/MusicPlayer";
-import { useMusicPlayer } from "@/lib/use/useMusicPlayer";
+import { useMusicPlayer } from "@/lib/hooks/useMusicPlayer";
 import { useAudioContext } from "@/lib/providers/AudioProvider";
 import { TrackResponse, toMusicPlayerTrack } from "@/lib/types/TrackResponse";
 import { MainMenu } from "./components/MainMenu";
