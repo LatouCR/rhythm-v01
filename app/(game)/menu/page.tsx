@@ -1,4 +1,4 @@
-import type { BeatmapResponse } from "@/lib/types/BeatmapResponse";
+import { fetchBeatmaps } from "@/lib/query/beatmaps";
 import Datadisplay from "./components/Datadisplay";
 
 export default async function Menu() {
@@ -9,12 +9,4 @@ export default async function Menu() {
             <Datadisplay beatmapsPromise={beatmapsPromise} />
         </main>
     );
-}
-
-async function fetchBeatmaps(): Promise<BeatmapResponse> {
-    const response = await fetch("http://localhost:3000/api/beatmaps/sets", { cache: "force-cache" });
-    if (!response.ok) {
-        throw new Error("Failed to fetch beatmaps");
-    }
-    return response.json();
 }
