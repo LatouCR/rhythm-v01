@@ -2,6 +2,7 @@
 import { PlayableBeatmap, BeatmapResponse } from "@/lib/types/BeatmapResponse";
 import { useState } from "react"
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib";
 import { motion } from "motion/react";
 import AudioVisualizer from "@/components/GameUI/Audio/AudioVisualizer";
@@ -16,10 +17,15 @@ interface BeatmapCardProps {
 
 
 function BeatmapCard({ beatmap, rank }: BeatmapCardProps) {
+    
+    const router = useRouter();
+
     const [isHovered, setIsHovered] = useState(false);
 
+
     const handleClick = () => {
-        console.log(`started: ${beatmap.title} map`);
+        router.push(`/game`);
+        console.log(`Clicked on beatmap: ${beatmap.title}`);
     };
 
     const level = beatmap.versions[0]?.difficulty.OverallDifficulty ?? 0;

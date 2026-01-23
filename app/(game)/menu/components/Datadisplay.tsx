@@ -55,6 +55,7 @@ export default function Datadisplay({ beatmapsPromise }: DatadisplayProps) {
             case "Enter":
                 if (selectedIndex >= 0 && selectedIndex < beatmaps.length) {
                     console.log("Map Selected - Should transition to gameplay");
+                    router.push(`/game`);
                 }
                 return;
             default:
@@ -66,7 +67,7 @@ export default function Datadisplay({ beatmapsPromise }: DatadisplayProps) {
             itemRefs.current[newIndex]?.focus();
             playBeatmap(beatmaps[newIndex]);
         }
-    }, [beatmaps, playBeatmap, selectedIndex]);
+    }, [beatmaps, playBeatmap, selectedIndex, router]);
 
     const handleItemFocus = useCallback((index: number, beatmapSet: PlayableBeatmap) => {
         if (index === selectedIndex) return;
