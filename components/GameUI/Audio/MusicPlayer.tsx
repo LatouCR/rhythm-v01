@@ -53,7 +53,7 @@ const MusicPlayer = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="mask-b-from-50% mask-radial-[48%_900%] mask-radial-from-80% -z-10 absolute top-0 left-0 w-full h-full">
+      <div className="mask-b-from-50% mask-radial-[48%_200%] mask-radial-from-80% -z-10 absolute top-0 left-0 w-full h-full">
         <Image
           src={backgroundUrl}
           alt={`${trackName} Background Image`}

@@ -62,8 +62,7 @@ export default function Home() {
       };
       handleFirstPlay();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, player]);
+  }, [isLoading, player, startAudio, playTrackByIndex, currentTrackData]);
 
   return (
     <main id="home-page" className="w-full h-screen">

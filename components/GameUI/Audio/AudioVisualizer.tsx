@@ -1,3 +1,4 @@
+"use client"
 import { useRef, useState, useEffect } from "react";
 import Bars from "../Visualizer/Bars";
 import type * as Tone from "tone";
@@ -42,7 +43,7 @@ export default function AudioVisualizer({ analyser }: AudioVisualizerProps) {
   }, [analyser]);
 
   return (
-    <div className="flex items-center justify-center w-full h-64 px-4">
+    <div className="flex w-full h-16 px-4">
       <Bars dataArray={dataArray} />
     </div>
   );

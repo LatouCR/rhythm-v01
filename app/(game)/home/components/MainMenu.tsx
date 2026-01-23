@@ -1,10 +1,10 @@
 "use client";
 import { motion } from 'motion/react';
 import { Particles, StarBorder } from "@/components/ReactBits";
-import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const PARTICLE_COLORS = ['#1f1e33', '#ffffff', '#5E548E'];
 const PARTICLE_COUNT = 500;
@@ -22,12 +22,8 @@ export function MainMenu() {
         setIsHovered(prev => !prev);
     };
 
-    const handleStartGame = () => {
-        router.push('/menu');
-    }
-
-    const handleShowSettings = () => {
-        router.push('/settings');
+    const goTo = (path: string) => {
+        router.push(path);
     }
 
     return (
@@ -86,7 +82,7 @@ export function MainMenu() {
                     >
                         <motion.div className="w-full flex justify-center"
                             whileHover={{ scale: 1.05 }}
-                            onClick={handleStartGame}
+                            onClick={() => goTo('/menu')}
                         >
                             <StarBorder
                                 className="[&>div]:px-8 [&>div]:py-3 cursor-pointer font-semibold text-lg w-full max-w-xs"
@@ -99,7 +95,7 @@ export function MainMenu() {
                         </motion.div>
                         <motion.div className="w-full flex justify-center"
                             whileHover={{ scale: 1.05 }}
-                            onClick={handleShowSettings}
+                            // onClick={() => goTo('/settings')}
                         >
                             <StarBorder
                                 className="[&>div]:px-8 [&>div]:py-3 cursor-pointer font-semibold text-lg w-full max-w-xs"
@@ -108,6 +104,19 @@ export function MainMenu() {
                                 speed="4s"
                             >
                                 <p className='hover:text-white text-white/80'>Settings</p>
+                            </StarBorder>
+                        </motion.div>
+                        <motion.div className="w-full flex justify-center"
+                            whileHover={{ scale: 1.05 }}
+                            onClick={() => goTo('/game')}
+                        >
+                            <StarBorder
+                                className="[&>div]:px-8 [&>div]:py-3 cursor-pointer font-semibold text-lg w-full max-w-xs"
+                                color="#5E548E"
+                                thickness={2}
+                                speed="4s"
+                            >
+                                <p className='hover:text-white text-white/80'>Game</p>
                             </StarBorder>
                         </motion.div>
                         <Link
