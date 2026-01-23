@@ -1,4 +1,4 @@
-import { fetchBeatmaps } from "@/lib/query/beatmaps";
+import { fetchBeatmaps } from "@/lib/queries/beatmaps";
 import Datadisplay from "./components/Datadisplay";
 
 export default async function Menu() {

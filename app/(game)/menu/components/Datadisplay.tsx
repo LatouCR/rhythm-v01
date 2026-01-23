@@ -1,9 +1,10 @@
 "use client";
 import type { BeatmapResponse, PlayableBeatmap } from "@/lib/types/BeatmapResponse";
-import { useAudioStore } from "@/lib";
-import { use, useRef, useCallback, forwardRef, useState } from "react";
+import { useAudioStore, useInputContext } from "@/lib";
+import { use, useRef, useCallback, forwardRef, useState, useEffect, useMemo } from "react";
 import { bmToMusicPlayer } from "@/lib/types/TrackResponse";
 import { useRouter } from "next/navigation";
+import InputSettings from "../../test/Settings";
 
 interface DatadisplayProps {
     beatmapsPromise: Promise<BeatmapResponse>;
@@ -13,8 +14,26 @@ export default function Datadisplay({ beatmapsPromise }: DatadisplayProps) {
     const { beatmaps } = use(beatmapsPromise);
     const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
     const [selectedIndex, setSelectedIndex] = useState<number>(-1);
-    const { playTrack } = useAudioStore();
+    const { playTrack, currentTrackData } = useAudioStore();
 
+    // Find the index of the currently playing track in the beatmaps list
+    const currentTrackIndex = useMemo(() => {
+        if (!currentTrackData) return -1;
+        return beatmaps.findIndex(bm => bm.id === currentTrackData.id);
+    }, [beatmaps, currentTrackData]);
+
+    // On mount, sync selectedIndex with currently playing track (if any)
+    // This handles the transition from /home to /menu
+    useEffect(() => {
+        if (selectedIndex === -1 && currentTrackIndex !== -1) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setSelectedIndex(currentTrackIndex);
+            // Focus the item to show the selected styling
+            itemRefs.current[currentTrackIndex]?.focus();
+        }
+    }, [currentTrackIndex, selectedIndex]);
+
+    // Play beatmap from preview time when user selects it
     const playBeatmap = useCallback((beatmapSet: PlayableBeatmap) => {
         const track = bmToMusicPlayer(beatmapSet);
         playTrack(track);
@@ -22,26 +41,11 @@ export default function Datadisplay({ beatmapsPromise }: DatadisplayProps) {
 
     const router = useRouter();
 
-    const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLUListElement>) => {
-        let newIndex = selectedIndex;
-
-        switch (event.key) {
-            case "ArrowUp":
-                event.preventDefault();
-                newIndex = selectedIndex <= 0 ? 0 : selectedIndex - 1;
-                break;
-            case "ArrowDown":
-                event.preventDefault();
-                newIndex = selectedIndex >= beatmaps.length - 1 ? beatmaps.length - 1 : selectedIndex + 1;
-                break;
-            case "Enter":
-                if (selectedIndex >= 0 && selectedIndex < beatmaps.length) {
-                    console.log("Map Selected - Should transition to gameplay");
-                }
-                return;
-            default:
-                return;
-        }
+    // Navigation helper
+    const navigate = useCallback((direction: -1 | 1) => {
+        const newIndex = direction === -1
+            ? Math.max(0, selectedIndex - 1)
+            : Math.min(beatmaps.length - 1, selectedIndex + 1);
 
         if (newIndex !== selectedIndex && newIndex >= 0 && newIndex < beatmaps.length) {
             setSelectedIndex(newIndex);
@@ -50,13 +54,31 @@ export default function Datadisplay({ beatmapsPromise }: DatadisplayProps) {
         }
     }, [beatmaps, playBeatmap, selectedIndex]);
 
+    // Input handling via InputManager
+    useInputContext('menu', {
+        'nav-up': (pressed) => pressed && navigate(-1),
+        'nav-down': (pressed) => pressed && navigate(1),
+        'select': (pressed) => {
+            if (pressed && selectedIndex >= 0 && selectedIndex < beatmaps.length) {
+                console.log("Map Selected - Should transition to gameplay");
+            }
+        },
+        'back': (pressed) => pressed && router.push("/"),
+    });
+
     const handleItemFocus = useCallback((index: number, beatmapSet: PlayableBeatmap) => {
         if (index === selectedIndex) return;
         setSelectedIndex(index);
-        playBeatmap(beatmapSet);
-    }, [playBeatmap, selectedIndex]);
+        // Only play if this is a different track than currently playing
+        if (currentTrackData?.id !== beatmapSet.id) {
+            playBeatmap(beatmapSet);
+        }
+    }, [playBeatmap, selectedIndex, currentTrackData]);
 
-    const currentBackground = selectedIndex >= 0 ? beatmaps[selectedIndex]?.backgroundUrl : beatmaps[0]?.backgroundUrl;
+    // Use selected beatmap's background, or fall back to currently playing track's background
+    const currentBackground = selectedIndex >= 0
+        ? beatmaps[selectedIndex]?.backgroundUrl
+        : (currentTrackData?.backgroundUrl ?? beatmaps[0]?.backgroundUrl);
 
     return (
         <div className="relative w-full h-full min-h-screen">
@@ -68,10 +90,14 @@ export default function Datadisplay({ beatmapsPromise }: DatadisplayProps) {
             {/* Dark overlay for readability */}
             <div className="absolute inset-0 bg-black/60" />
 
+            <div className="absolute inset-0 z-100 w-fit h-fit top-4 right-10">
+                <InputSettings context="menu" />
+            </div>
+
             {/* Content */}
             <div className="relative z-10 w-full max-w-4xl p-4 mx-auto">
                 <h2 className="text-2xl font-bold text-white mb-6">Available Beatmaps</h2>
-                <ul className="space-y-4" onKeyDown={handleKeyDown}>
+                <ul className="space-y-4">
                     {beatmaps.map((set, index) => (
                         <BeatmapSetCard
                             key={set.id}
@@ -97,7 +123,7 @@ const BeatmapSetCard = forwardRef<HTMLLIElement, BeatmapSetCardProps>(
     function BeatmapSetCard({ beatmapSet, onItemFocus }, ref) {
         return (
             <li
-                className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 hover:cursor-pointer"
                 ref={ref}
                 tabIndex={0}
                 onFocus={onItemFocus}

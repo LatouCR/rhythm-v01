@@ -1,7 +1,14 @@
-export default function TestPage() {
+import { fetchBeatmaps } from "@/lib/queries/beatmaps";
+import BeatmapPreview from "../menu/components/BeatmapPreview";
+
+export default async function TestPage() {
+
+    const beatmapsPromise = await fetchBeatmaps();
+    const beatmaps = beatmapsPromise.beatmaps;
+
     return (
-        <div className="w-full h-full flex items-center justify-center">
-            <p>Test Page</p>
+        <div className="w-screen h-screen">
+            <BeatmapPreview beatmaps={beatmaps} />
         </div>
     )
 }

@@ -95,7 +95,7 @@ export function MainMenu() {
                         </motion.div>
                         <motion.div className="w-full flex justify-center"
                             whileHover={{ scale: 1.05 }}
-                            // onClick={() => goTo('/settings')}
+                            onClick={() => goTo('/test')}
                         >
                             <StarBorder
                                 className="[&>div]:px-8 [&>div]:py-3 cursor-pointer font-semibold text-lg w-full max-w-xs"
