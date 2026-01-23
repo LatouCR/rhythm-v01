@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import * as Tone from 'tone';
 import { analyze } from 'web-audio-beat-detector';
 import type { MusicPlayerTrack } from '@/lib/types/TrackResponse';
+import { getMetronome } from '@/lib/utils/metronome';
 
 const DEFAULT_VOLUME = 70;
 
@@ -241,6 +242,8 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
               const adjustedTempo = tempo < 150 ? tempo * 2 : tempo;
               const bpm = Math.round(adjustedTempo);
               set({ bpm });
+              const metronome = getMetronome();
+              metronome.setBpm(bpm);
             }
           })
           .catch((err) => {

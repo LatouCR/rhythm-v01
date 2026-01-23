@@ -14,6 +14,7 @@ export function useMusicPlayer() {
     const {
         player,
         analyser,
+        bpm,
         initializePlayer,
         initializeVolume,
         tracks,
@@ -75,6 +76,7 @@ export function useMusicPlayer() {
 
         // Current track info
         currentTrackData,
+        bpm,
 
         // Volume
         volume,

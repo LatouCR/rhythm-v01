@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { SkipBack, SkipForward, PauseCircle, PlayCircle } from "lucide-react";
 import Image from "next/image";
-import { useMusicPlayer } from "@/lib/use/useMusicPlayer";
+import { useMusicPlayer } from "@/lib/hooks/useMusicPlayer";
 import { cn } from "@/lib";
 
 interface ControlButtonProps {
